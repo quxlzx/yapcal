@@ -1,0 +1,17 @@
+EN.445 - Introduction to Machine Learning (Fall 2026)
+Instructor: Dr. A. Turing, TuTh 2:00-3:30PM, MTR 1234
+
+Grading:
+  Problem sets 30%, Midterm 25%, Final project 30%, Participation 15%
+
+Schedule of deliverables:
+  PS1 due Sep 18 at 11:59pm
+  PS2 due Oct 16 at 11:59pm
+  Midterm exam: Thursday, October 29, in class
+  PS3 due Nov 20 at 11:59pm
+  Project proposal due Nov 13
+  Final presentation: Monday, December 14, 2:00-5:00PM
+  Final report due Dec 18 at 11:59pm
+
+No late submissions. Regrade requests close one week after each
+exam is returned. Thanksgiving break: Nov 26-29, no classes.
