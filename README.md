@@ -15,7 +15,7 @@ stdlib. If it runs `python3`, it runs yapcal.
 > what do i have this weekend
   Sat Nov 21: 2 event(s)
    · 2026-11-21 10:00  gym
-   · 2026-11-21 19:00  dinner w/ Joanna
+   · 2026-11-21 19:00  dinner w/ friends
 
 > ingest syllabus.pdf --dry
   found 11 candidate(s):
