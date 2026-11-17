@@ -6,7 +6,7 @@ is dropped or flagged, never guessed.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from . import dates, datescan
 from .llm import LLM
@@ -63,6 +63,8 @@ def ingest_text(text: str, llm: LLM, now: datetime | None = None,
                               now=now, default_duration_min=default_duration_min)
             if not r.ok:
                 continue
+            if r.start < now - timedelta(hours=12):
+                continue  # dated event already passed (e.g. earlier in the syllabus)
             key = (ev["title"].lower().strip(), r.start.date().isoformat())
             if key in seen:
                 continue
