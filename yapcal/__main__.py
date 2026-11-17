@@ -5,6 +5,13 @@ import argparse
 import sys
 from datetime import datetime, timedelta
 
+# Windows consoles default to cp1252 — make our symbols (✓ 📅) safe everywhere
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 from . import gcal
 from .app import run_chat, do_ingest
 from .config import load_config, save_config, load_token
