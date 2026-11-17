@@ -41,6 +41,10 @@ def main(argv=None):
     p = sub.add_parser("config", help="set config values (endpoint=... model=...)")
     p.add_argument("pairs", nargs="*")
 
+    p = sub.add_parser("bot", help="Discord bot mode (DM-driven calendar)")
+    p.add_argument("--token", help="Discord bot token (saved to config after first use)")
+    p.add_argument("--allow", nargs="*", help="Discord user IDs allowed to control the bot")
+
     args = ap.parse_args(argv)
 
     if args.cmd == "auth":
@@ -93,6 +97,19 @@ def main(argv=None):
     if args.cmd == "ingest":
         llm = LLM(cfg["endpoint"], cfg["model"])
         do_ingest(cfg, llm, args.path, dry=args.dry)
+        return 0
+    if args.cmd == "bot":
+        token = args.token or cfg.get("bot_token")
+        if not token:
+            print("no bot token. Get one from discord.com/developers/apps -> Bot -> Reset Token, then:")
+            print("  python -m yapcal bot --token <TOKEN> --allow <your_user_id>")
+            return 1
+        cfg["bot_token"] = token
+        if args.allow:
+            cfg["bot_allowed"] = args.allow
+        save_config(cfg)
+        from .discordbot import run_bot
+        run_bot(cfg, token, cfg.get("bot_allowed", []))
         return 0
     # default: chat
     run_chat(cfg)

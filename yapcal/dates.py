@@ -241,6 +241,14 @@ def resolve(date_phrase: str = "", time_phrase: str = "", duration_phrase: str =
     if dp in TIME_KEYWORDS and not tp:
         tp, dp = dp, "today"
     ymd = _parse_date(dp, now)
+    if ymd is None and dp:
+        # trailing time without "at": "tmr 3pm", "dec 14 2pm", "fri 6"
+        m = re.match(r"^(.+?)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm|a|p)?|noon|midnight|"
+                     r"morning|afternoon|evening|tonight|eod)$", dp)
+        if m:
+            ymd2, t2 = _parse_date(m.group(1), now), _parse_time(m.group(2), now)
+            if ymd2 and t2:
+                ymd, dp, tp = ymd2, m.group(1), m.group(2)
     if date_phrase and not ymd:
         res.ambiguous = True
         res.notes.append(f"couldn't parse date: '{dp}'")

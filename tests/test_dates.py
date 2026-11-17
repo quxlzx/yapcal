@@ -75,6 +75,11 @@ r = resolve("2026-12-01", "14:00", "", now=NOW)
 assert r.start == datetime(2026, 12, 1, 14, 0)  # ISO date not mistaken for a range
 print("ok   ISO date safe from range regex")
 
+# no-"at" time suffixes (found via bot test)
+check("tmr 3pm", "", "", datetime(2026, 11, 17, 15, 0))
+check("dec 14 2pm", "", "", datetime(2026, 12, 14, 14, 0))
+check("friday 6", "", "", datetime(2026, 11, 20, 18, 0))
+
 # ambiguity paths
 r = resolve("someday", "", "", now=NOW)
 assert r.ambiguous and not r.ok

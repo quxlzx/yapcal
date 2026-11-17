@@ -25,6 +25,38 @@ stdlib. If it runs `python3`, it runs yapcal.
   add which? [all / 1,3,5 / q]:
 ```
 
+## Discord bot mode
+
+DM a bot on your account and it manages your calendar with the same
+parser + local LLM. Stdlib-only (REST long-poll, no websockets, no pip):
+
+```bash
+# discord.com/developers/applications -> New App -> Bot -> Reset Token
+python3 -m yapcal bot --token <BOT_TOKEN> --allow <YOUR_DISCORD_USER_ID>
+```
+
+Only allowlisted user IDs can touch your calendar. Multi-turn works:
+missing times get follow-up questions, every add/delete needs a `y`.
+
+## Which model? (benchmarked)
+
+`bench/` contains a 100-case extraction benchmark (intent + slot copying,
+schema-locked JSON). Results for 16 models under ~4B (`bench/results.csv`),
+run on an RTX 5060 Laptop:
+
+| model | score/100 | JSON fails | tok/s |
+|---|---|---|---|
+| **qwen3:1.7b** ← recommended | **88.9** | 0 | 143 |
+| qwen3:4b | 88.8 | 0 | 78 |
+| llama3.2:3b | 88.4 | 0 | 103 |
+| phi3:mini | 88.2 | 0 | 99 |
+| qwen3:0.6b | 79.9 | 0 | 161 |
+| deepseek-r1:1.5b | 60.4 | 13 | — |
+
+Takeaways: the quality knee is at **1.7B** (4B buys nothing at 2x the cost);
+schema-constrained decoding gives ~0 format failures even at 360M; reasoning
+models are the wrong tool for extraction.
+
 ## Why it's reliable with small models
 
 The LLM **never does date math**. It only classifies intent and copies raw
