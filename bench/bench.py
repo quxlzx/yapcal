@@ -95,6 +95,8 @@ def ask(model, text):
                          {"role": "user", "content": text}],
             "format": INTENT_SCHEMA, "options": {"temperature": 0, "num_ctx": 2048},
             "stream": False}
+    if "qwen3" in model:
+        body["think"] = False  # match yapcal production behaviour
     req = urllib.request.Request("http://127.0.0.1:11434/api/chat",
                                  data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json"})
@@ -107,6 +109,10 @@ def ask(model, text):
 
 def run(model):
     results, total, json_fails, tps = [], 0.0, 0, []
+    try:
+        ask(model, "hi")  # warmup: load model before timing
+    except Exception:
+        pass
     for i, case in enumerate(CASES):
         try:
             raw, dt, ec = ask(model, case["input"])
