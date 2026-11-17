@@ -40,6 +40,7 @@ Schema-constrained JSON (llama.cpp / Ollama) keeps even a 1.7B model honest.
    ollama pull qwen3:1.7b && ollama serve        # or
    llama-server -m Qwen3-1.7B-Q4_K_M.gguf --port 8080   # llama.cpp
    ```
+   Windows: `winget install Ollama.Ollama`, then `ollama pull qwen3:1.7b`.
    yapcal auto-detects the model; point it elsewhere with:
    ```bash
    python3 -m yapcal config endpoint=http://127.0.0.1:8080/v1 model=qwen3
