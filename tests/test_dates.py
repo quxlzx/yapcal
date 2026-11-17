@@ -60,6 +60,21 @@ r = resolve("tmr", "3pm", "90 min", now=NOW)
 assert r.end == datetime(2026, 11, 17, 16, 30), r.end
 print("ok   duration 90 min")
 
+# time ranges
+check("between 12am and 6am tmr", "", "", datetime(2026, 11, 17, 0, 0))
+r = resolve("between 12am and 6am tmr", "", "", now=NOW)
+assert r.end == datetime(2026, 11, 17, 6, 0), r.end
+print("ok   range end 6am")
+r = resolve("tmr 10pm to 2am", "", "", now=NOW)
+assert r.start == datetime(2026, 11, 17, 22, 0) and r.end == datetime(2026, 11, 18, 2, 0), (r.start, r.end)
+print("ok   range crosses midnight")
+r = resolve("fri 9 to 5", "", "", now=NOW)
+assert r.start == datetime(2026, 11, 20, 9, 0) and r.end == datetime(2026, 11, 20, 17, 0), (r.start, r.end)
+print("ok   work hours 9 to 5")
+r = resolve("2026-12-01", "14:00", "", now=NOW)
+assert r.start == datetime(2026, 12, 1, 14, 0)  # ISO date not mistaken for a range
+print("ok   ISO date safe from range regex")
+
 # ambiguity paths
 r = resolve("someday", "", "", now=NOW)
 assert r.ambiguous and not r.ok

@@ -124,6 +124,31 @@ def _split_date_time(phrase: str) -> tuple[str, str]:
     return phrase, time_part
 
 
+TIME_TOKEN = r"\d{1,2}(?::\d{2})?\s*(?:am|pm|a|p)?"
+RANGE_RES = [
+    re.compile(rf"between\s+({TIME_TOKEN})\s+and\s+({TIME_TOKEN})"),
+    re.compile(rf"({TIME_TOKEN})\s*(?:to|-|–)\s*({TIME_TOKEN})"),
+]
+
+
+def _parse_range(phrase: str, now: datetime) -> tuple | None:
+    """Detect 'between 12am and 6am' / '10pm to 2am' inside a phrase.
+    Returns (t1, t2, date_part) or None."""
+    for rx in RANGE_RES:
+        m = rx.search(phrase)
+        if not m:
+            continue
+        t1, t2 = _parse_time(m.group(1), now), _parse_time(m.group(2), now)
+        if t1 is None or t2 is None:
+            continue
+        date_part = (phrase[: m.start()] + " " + phrase[m.end():]).strip()
+        date_part = re.sub(r"^(on|in|for)\s+", "", date_part)
+        if date_part and _parse_date(date_part, now) is None:
+            continue  # leftover isn't a date -> probably not a time range
+        return t1, t2, date_part
+    return None
+
+
 def _parse_date(d: str, now: datetime) -> tuple | None:
     """Return (year, month, day) or None."""
     d = _norm(d)
@@ -194,6 +219,21 @@ def resolve(date_phrase: str = "", time_phrase: str = "", duration_phrase: str =
             now: datetime | None = None, default_duration_min: int = 60) -> Resolved:
     now = now or datetime.now()
     res = Resolved()
+    # time ranges: "between 12am and 6am tmr", "10pm to 2am fri"
+    combined = _norm(" ".join(x for x in (date_phrase, time_phrase) if x))
+    rng = _parse_range(combined, now) if combined else None
+    if rng:
+        t1, t2, dp = rng
+        ymd = _parse_date(dp, now) if dp else (now.year, now.month, now.day)
+        base = datetime(*ymd)
+        res.start = base.replace(hour=t1[0], minute=t1[1])
+        res.end = base.replace(hour=t2[0], minute=t2[1])
+        if res.end <= res.start:
+            res.end += timedelta(days=1)  # crosses midnight
+        if res.start < now - timedelta(hours=12):
+            res.notes.append(f"{res.start:%a %b %d} is in the past")
+            res.ambiguous = True
+        return res
     dp, tp = _split_date_time(date_phrase) if date_phrase else ("", "")
     if time_phrase:
         tp = time_phrase
