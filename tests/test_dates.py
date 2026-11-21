@@ -1,8 +1,9 @@
 """Tests for the deterministic date resolver. Run: python3 tests/test_dates.py"""
 import sys
 from datetime import datetime
+from pathlib import Path
 
-sys.path.insert(0, ".")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from yapcal.dates import resolve
 
 NOW = datetime(2026, 11, 16, 14, 30)  # Monday 2:30pm
@@ -89,4 +90,9 @@ assert r.ambiguous  # no date -> today 9am flagged
 print("ok   empty -> today 9am, flagged")
 
 print(f"\n{'ALL PASS' if fails == 0 else str(fails) + ' FAILURES'}")
-sys.exit(1 if fails else 0)
+
+def test_all():  # pytest entry point
+    assert fails == 0, f"{fails} failures (see stdout)"
+
+if __name__ == "__main__":
+    sys.exit(1 if fails else 0)

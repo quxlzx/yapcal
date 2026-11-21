@@ -1,8 +1,9 @@
 """Offline test of the bot state machine (mock LLM + mock calendar)."""
 import sys
 from datetime import datetime
+from pathlib import Path
 
-sys.path.insert(0, ".")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from yapcal import gcal
 from yapcal import discordbot
 
@@ -60,4 +61,9 @@ expect(s.handle("always"), "auto-adding", "auto on")
 expect(s.handle("add run tmr 7am"), "added", "auto add no confirm")
 
 print("\n" + ("ALL PASS" if fails == 0 else f"{fails} FAILURES"))
-sys.exit(1 if fails else 0)
+
+def test_all():  # pytest entry point
+    assert fails == 0, f"{fails} failures (see stdout)"
+
+if __name__ == "__main__":
+    sys.exit(1 if fails else 0)
